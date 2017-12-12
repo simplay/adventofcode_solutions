@@ -1,0 +1,31 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    awesome_print (1.7.0)
+    byebug (9.0.6)
+    coderay (1.1.2)
+    method_source (0.8.2)
+    pry (0.10.4)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    pry-byebug (3.4.3)
+      byebug (>= 9.0, < 9.1)
+      pry (~> 0.10)
+    pry-doc (0.11.1)
+      pry (~> 0.9)
+      yard (~> 0.9)
+    slop (3.6.0)
+    yard (0.9.12)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  awesome_print (~> 1.7.0)
+  pry (~> 0.10.4)
+  pry-byebug (~> 3.4.2)
+  pry-doc
+
+BUNDLED WITH
+   1.16.0
