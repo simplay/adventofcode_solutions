@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 require 'minitest/pride'
 
-class Maze
+class Maze2
   attr_reader :index_list
 
   def initialize(index_list)
@@ -16,7 +16,9 @@ class Maze
     loop do
       index_value = index_list[current_index]
 
-      index_list[current_index] += 1
+      index_update_value = (index_value >= 3) ? -1 : 1
+
+      index_list[current_index] += index_update_value
 
       current_index = current_index + index_value
       
@@ -27,10 +29,10 @@ class Maze
   end
 end
 
-class MazeTest < MiniTest::Test
-  def test_steps_1
-    index_list = [0, 3, 0, 1, -3]
-    assert_equal(5, Maze.new(index_list).steps)
+class Maze2Test < MiniTest::Test
+  def test_steps_2
+    index_list = [2, 3, 2, 3, -1]
+    assert_equal(4, Maze2.new(index_list).steps)
   end
 end
 
@@ -1055,5 +1057,5 @@ inputs = <<-SEQ
 SEQ
 
 index_list = inputs.split.map(&:to_i)
-steps = Maze.new(index_list).steps
+steps = Maze2.new(index_list).steps
 puts "steps: #{steps}"
