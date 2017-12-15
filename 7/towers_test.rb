@@ -66,8 +66,8 @@ class Towers
   end
 
   def root
-    programs.values.find do |program| 
-      program.parent.nil? 
+    programs.values.find do |program|
+      program.parent.nil?
     end
   end
 
@@ -107,8 +107,8 @@ class Towers
   end
 
   def fixed_weight_of_issue_program
-    issue_groups = issue_children.group_by do |node| 
-      node.balance_sum 
+    issue_groups = issue_children.group_by do |node|
+      node.balance_sum
     end
 
     issue_program = issue_groups.find do |weight, group|
@@ -118,7 +118,7 @@ class Towers
     okay_program = issue_groups.find do |_, group|
       group.count > 1
     end.last.last
-    
+
     delta_weight = issue_program.balance_sum - okay_program.balance_sum
 
     issue_program.weight - delta_weight
