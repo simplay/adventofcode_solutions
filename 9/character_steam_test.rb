@@ -7,6 +7,7 @@ class CharacterStream
   def initialize(sequence)
     @sequence = sequence
     cleanup_bangs
+    @raw_without_bangs = String.new(sequence)
     cleanup_garbage
   end
 
@@ -15,12 +16,48 @@ class CharacterStream
   end
   
   def score
-    visit(0)
+    compute_score(0)
+  end
+
+  def garbage_count
+    trash = []
+    t = compute_garbage_count(0, trash, [], false)
+    t.flatten.count
   end
 
   private
 
-  def visit(sum, index = 0, nesting_level = 1)
+  def compute_garbage_count(i = 0, trash, current_garbage, started)
+    index = i
+    loop do
+      case @raw_without_bangs[index]
+      when '<'
+        # start new block
+        if started
+          current_garbage << @raw_without_bangs[index]
+        else
+          started = true
+          current_garbage = []
+        end
+      when '>'
+        started = false
+        trash << current_garbage 
+        # remember
+      else
+        if started
+          current_garbage << @raw_without_bangs[index]
+        end
+      end
+
+      if index < @raw_without_bangs.length
+        index += 1
+      else
+        return trash
+      end
+    end
+  end
+
+  def compute_score(sum, index = 0, nesting_level = 1)
     new_nesting_level = nesting_level
     case sequence[index]
     when "{"
@@ -31,7 +68,7 @@ class CharacterStream
     end
     
     if index < sequence.length
-      visit(sum, index + 1, new_nesting_level)
+      compute_score(sum, index + 1, new_nesting_level)
     else
       sum
     end
@@ -97,8 +134,28 @@ class CharacterStreamTest < MiniTest::Test
     score = CharacterStream.new(sequence).score
     assert_equal(11089, score)
   end
+
+  def test_gc
+    assert_equal(0, CharacterStream.new("<>").garbage_count)
+    assert_equal(17, CharacterStream.new("<random characters>").garbage_count)
+    assert_equal(3, CharacterStream.new("<<<<>").garbage_count)
+    assert_equal(2, CharacterStream.new("<{!>}>").garbage_count)
+    assert_equal(0, CharacterStream.new("<!!>").garbage_count)
+    assert_equal(0, CharacterStream.new("<!!!>>").garbage_count)
+    assert_equal(10, CharacterStream.new("<{o\"i!a,<i<a}>").garbage_count)
+
+    sequence = File.read("data.txt").chomp
+    gc = CharacterStream.new(sequence).garbage_count
+    assert_equal(5288, gc)
+  end
 end
 
+# part 1
 sequence = File.read("data.txt").chomp
 score = CharacterStream.new(sequence).score
 puts "score: #{score}"
+
+# part 2
+sequence = File.read("data.txt").chomp
+gc = CharacterStream.new(sequence).garbage_count
+puts "garbage count: #{gc}"
