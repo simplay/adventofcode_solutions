@@ -2,17 +2,26 @@ require 'minitest/autorun'
 require 'minitest/pride'
 
 class Node
-  attr_accessor :north,
-                :north_east,
-                :south_east,
-                :south,
-                :south_west,
-                :north_west,
-                :id
+  attr_accessor :id, :i, :j
 
-  def initialize(graph)
+  def self.next_id
+    @id ||= 0
+    @id += 1
+  end
+
+  def self.reset
+    @id = 0
+  end
+
+  def initialize(i,j, grid)
+    @i = i
+    @j = j
     @id = Node.next_id
-    @graph = graph
+    @grid = grid
+  end
+
+  def index
+    id - 1
   end
 
   def neighbors
@@ -26,118 +35,28 @@ class Node
     ].compact
   end
 
-  def index
-    id - 1
+  def north
+    @grid&.value(i + 1, j)
   end
 
-  def make_new_node(direction)
-    # cases here, else
-    #
-
-    node = case direction
-    when 'n'
-    when 's'
-    when 'sw'
-    when 'se'
-    when 'nw'
-    when 'ne'
-    else
-      node = Node.new(@graph)
-      @graph.add(node)
-    end
+  def south
+    @grid&.value(i - 1, j)
   end
 
-  def self.next_id
-    @id ||= 0
-    @id += 1
+  def north_east
+    @grid&.value(i + 1, j - 1)
   end
 
-  def self.reset
-    @id = 0
+  def south_east
+    @grid&.value(i, j - 1)
   end
 
-  def set_north(node)
-    @north = node
-    node.south = self
+  def south_west
+    @grid&.value(i - 1, j + 1)
   end
 
-  def set_north_east(node)
-    @north_east = node
-    node.south_west = self
-  end
-
-  def set_south_east(node)
-    @south_east = node
-    node.north_west = self
-  end
-
-  def set_south(node)
-    @south = node
-    node.north = self
-  end
-
-  def set_south_west(node)
-    @south_west = node
-    node.north_east = self
-  end
-
-  def set_north_west(node)
-    @north_west = node
-    node.south_east = self
-  end
-
-  def build_north
-    set_north_west(make_new_node('nw')) unless north_west
-    set_north(make_new_node('n')) unless north
-    set_north_east(make_new_node('ne')) unless north_east
-
-    north.set_south_east(north_east)
-    north.set_south_west(north_west)
-  end
-
-  def build_north_east
-    set_north(make_new_node('n')) unless north
-    set_north_east(make_new_node('ne')) unless north_east
-    set_south_east(make_new_node('se')) unless south_east
-
-    north_east.set_north_west(north)
-    north_east.set_south(south_east)
-  end
-
-  def build_south_east
-    set_north_east(make_new_node('ne')) unless north_east
-    set_south_east(make_new_node('se')) unless south_east
-    set_south(make_new_nodem('s')) unless south
-
-    south_east.set_north(north_east)
-    south_east.set_south_west(south)
-  end
-
-  def build_south
-    set_south_east(make_new_node('se')) unless south_east
-    set_south(make_new_node('s')) unless south
-    set_south_west(make_new_node('sw')) unless south_west
-
-    south.set_north_east(south_east)
-    south.set_north_west(south_west)
-  end
-
-  def build_south_west
-    set_north_west(make_new_node('nw')) unless north_west
-    set_south_west(make_new_node('sw')) unless south_west
-    set_south(make_new_node('s')) unless south
-
-    south_west.set_north(north_west)
-    south_west.set_south_east(south)
-  end
-
-  def build_north_west
-    set_north(make_new_node('n')) unless north
-    set_north_west(make_new_node('nw')) unless north_west
-    set_south_west(make_new_node('sw')) unless south_west
-
-    north_west.set_south(south_west)
-    north_west.set_north_east(north)
+  def north_west
+    @grid&.value(i, j + 1)
   end
 end
 
@@ -159,35 +78,54 @@ end
 
 class HexGrid
   LARGE_INT_VALUE = 999_999_999_999
-
-  attr_reader :nodes,
-              :adj_matrix,
-              :shortest_paths,
-              :start_node
+  
+  attr_reader :adj_matrix,
+              :data,
+              :shortest_paths
 
   def initialize(walk)
     Node.reset
-    @nodes = []
     @walk = walk.split(",")
-    @start_node = Node.new(self)
-    @current_node = @start_node
 
-    add(@start_node)
-
-    build_graph
+    @data = {}
+    build_grid
     build_adj_matrix
-    @shortest_paths = run_dijkstra(@start_node)
+    @shortest_paths = run_dijkstra(start_node)
+
+    @current_node = start_node
+    perform_tour
   end
 
-  def add(node)
-    @nodes << node unless @nodes.include?(node)
+  def perform_tour
+    @walk.each do |direction|
+      @current_node = case direction
+      when 'n'
+        @current_node.north
+      when 'ne'
+        @current_node.north_east
+      when 'se'
+        @current_node.south_east
+      when 's'
+        @current_node.south
+      when 'sw'
+        @current_node.south_west
+      when 'nw'
+        @current_node.north_west
+      end
+    end
+  end
+
+  def start_node
+    value(0, 0)
   end
 
   def distance
     @shortest_paths[@current_node.index]
   end
 
-  private
+  def nodes
+    @data.values
+  end
 
   def run_dijkstra(start)
     vertex_count = nodes.count
@@ -241,10 +179,7 @@ class HexGrid
     min_index
   end
 
-  # compute shortest distance between @start_node
-  # and @current_node
   def build_adj_matrix
-    # TODO
     vertex_count = nodes.count
 
     @adj_matrix = NxNMatrix.new(vertex_count)
@@ -256,45 +191,28 @@ class HexGrid
     end
   end
 
-  def build_graph
-    @walk.each_with_index do |direction, idx|
-      require 'pry'; binding.pry
-      # @prev_node = @current_node
+  def build_grid
+    n = 10 # make it always an even number
 
-      case direction
-      when 'n'
-        next_node = @current_node.north
-        @current_node.build_north unless next_node
-        @current_node = @current_node.north
-
-      when 'ne'
-        next_node = @current_node.north_east
-        @current_node.build_north_east unless next_node
-        @current_node = @current_node.north_east
-
-      when 'se'
-        next_node = @current_node.south_east
-        @current_node.build_south_east unless next_node
-        @current_node = @current_node.south_east
-
-      when 's'
-        next_node = @current_node.south
-        @current_node.build_south unless next_node
-        @current_node = @current_node.south
-
-      when 'sw'
-        next_node = @current_node.south_west
-        @current_node.build_south_west unless next_node
-        @current_node = @current_node.south_west
-
-      when 'nw'
-        next_node = @current_node.north_west
-        @current_node.build_north_west unless next_node
-        @current_node = @current_node.north_west
+    n.times do |index_i|
+      i = index_i - n / 2
+      n.times do |index_j|
+        j =  index_j - n / 2
+        set(Node.new(i,j, self), i,j)
       end
-
-      add(@current_node)
     end
+  end
+
+  def value(i,j)
+    @data[key(i,j)]
+  end
+
+  def set(node, i,j)
+    @data[key(i,j)] = node
+  end
+
+  def key(i,j)
+    "#{i}:#{j}"
   end
 end
 
@@ -341,7 +259,6 @@ class HexGridTest < MiniTest::Test
 
   def test_walk3
     hg = HexGrid.new("ne,ne,s,s")
-    require 'pry'; binding.pry
     assert_equal(2, hg.distance)
   end
 
