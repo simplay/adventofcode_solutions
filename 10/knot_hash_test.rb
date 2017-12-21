@@ -4,11 +4,16 @@ require 'minitest/pride'
 class Reducer
   attr_reader :reduced_sequence
 
-  def initialize(lengths)
-    @lengths = lengths
+  def initialize(lengths, comma_separated = true)
 
-    text = lengths.join(",")
-    transformed = AsciiCodeTransformer.new(text).transformed
+    if comma_separated
+      @lengths = lengths
+      @text = lengths.join(",")
+    else
+      @text = lengths
+    end
+
+    transformed = AsciiCodeTransformer.new(@text).transformed
 
     kh = KnotHash.new(transformed)
     @final_sequence = kh.run(64)
@@ -21,8 +26,8 @@ class Reducer
   end
 
   def to_hex_string
-    reduced_sequence.map do |seq| 
-      seq.to_s(16) 
+    reduced_sequence.map do |seq|
+      seq.to_s(16)
     end.join
   end
 end
@@ -30,6 +35,7 @@ end
 class AsciiCodeTransformer
   LOOKUP_TABLE = {
     "," => 44,
+    "-" => 45,
     "0" => 48,
     "1" => 49,
     "2" => 50,
@@ -39,7 +45,20 @@ class AsciiCodeTransformer
     "6" => 54,
     "7" => 55,
     "8" => 56,
-    "9" => 57
+    "9" => 57,
+    "c" => 99,
+    "d" => 100,
+    "e" => 101,
+    "f" => 102,
+    "g" => 103,
+    "k" => 107,
+    "l" => 108,
+    "n" => 110,
+    "q" => 113,
+    "r" => 114,
+    "w" => 119,
+    "x" => 120,
+    "y" => 121
   }
 
   STANDARD_SUFFIX = [17, 31, 73, 47, 23]
@@ -48,7 +67,7 @@ class AsciiCodeTransformer
 
   # assumption: text has only numbers and ,
   def initialize(text)
-    
+
     transformed_text = text.chars.map do |char|
       LOOKUP_TABLE[char]
     end
@@ -168,7 +187,7 @@ class KnotHashTest < MiniTest::Test
   def test_ascii_transformer
     text = [1,2,3].join(",")
     assert_equal(
-      [49,44,50,44,51,17,31,73,47,23], 
+      [49,44,50,44,51,17,31,73,47,23],
       AsciiCodeTransformer.new(text).transformed
     )
   end
