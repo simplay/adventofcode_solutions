@@ -27,7 +27,8 @@ class Reducer
 
   def to_hex_string
     reduced_sequence.map do |seq|
-      seq.to_s(16)
+      hex = seq.to_s(16)
+      format("%02s", hex).gsub(/\s/, "0")
     end.join
   end
 end
