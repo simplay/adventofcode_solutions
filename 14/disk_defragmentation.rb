@@ -41,12 +41,38 @@ end
 class Cell
   attr_reader :row_idx, :col_idx
   attr_accessor :region
-  def initialize(value, row_idx, col_idx)
+  def initialize(maze:, value:, row_idx:, col_idx:)
     @marked = false
     @value = value
+    @maze = maze
 
     @row_idx = row_idx
     @col_idx = col_idx
+  end
+
+  def value(i,j)
+    @maze.value(i,j)
+  end
+
+  def neighbors
+    n = []
+    if row_idx + 1 <= 127 && row_idx + 1 >= 0
+        n << value(row_idx + 1, col_idx)
+    end
+
+    if row_idx - 1 <= 127 && row_idx - 1 >= 0
+      n << value(row_idx - 1, col_idx)
+    end
+
+    if col_idx + 1 <= 127 && col_idx + 1 >= 0
+      n << value(row_idx, col_idx + 1)
+    end
+
+    if col_idx - 1 <= 127 && col_idx - 1 >= 0
+      n << value(row_idx, col_idx - 1)
+    end
+
+    n.compact.select(&:used?)
   end
 
   def used?
@@ -59,7 +85,6 @@ class Cell
 
   def unmarked?
     !marked?
-    # !@marked
   end
 
   def visitable?
@@ -89,11 +114,12 @@ class Maze
     @data = structure.map(&:join).map do |s|
       row_values = s.split("")
       col_idx = 0
-      cells = row_values.map do |column|
+      cells = row_values.map do |column_value|
         cell = Cell.new(
-          column,
-          row_idx,
-          col_idx
+          maze: self,
+          value: column_value,
+          row_idx: row_idx,
+          col_idx: col_idx,
         )
         col_idx += 1
         cell
@@ -107,10 +133,10 @@ class Maze
   end
 
   def new_start_bit
-    used_bits.find(&:visitable?)
+    used_bits.find do |k| k.visitable? && k.region.nil? end
   end
 
-  def value(i,j)
+  def value(i, j)
     row = @data[i]
     return nil if row.nil?
     row[j]
@@ -121,47 +147,23 @@ class Maze
     loop do
       start = new_start_bit
       return parts if start.nil?
-      visit(start.row_idx, start.col_idx, parts)
-      start.mark!
+      visited = []
+      visit(start.row_idx, start.col_idx, parts, visited)
       parts += 1
     end
   end
 
-  def visit(i, j, region)
+  def visit(i, j, region, visited)
     bit = value(i,j)
     bit.mark!
     bit.region = region
+    visited << bit
 
-    visitable_children = [
-      [i + 1, j],
-      [i - 1, j],
-      [i    , j + 1],
-      [i    , j - 1]
-    ].map do |p|
-      value(p[0], p[1])
-    end.compact.select(&:visitable?)
-    
-
-    visitable_children.each do |child|
-        visit(child.row_idx, child.col_idx, region)
+    bit.neighbors.each do |child|
+      unless visited.include?(child)
+        visit(child.row_idx, child.col_idx, region, visited)
+      end
     end
-
-    # down
-    # if value(i + 1, j)&.visitable?
-    #   visit(i + 1, j, region)
-    #
-    #   # up
-    # elsif value(i - 1, j)&.visitable?
-    #   visit(i - 1, j, region)
-    #
-    # # righ
-    # elsif value(i, j + 1)&.visitable?
-    #   visit(i, j + 1, region)
-    #
-    # # left
-    # elsif value(i, j - 1)&.visitable?
-    #   visit(i, j - 1, region)
-    # end
   end
 
   def print(num = 8)
@@ -173,17 +175,27 @@ class Maze
     end
     nil
   end
+
+  def printsq(num: 8, right: 127, bottom: 127)
+    t1 = right - num
+    t2 = bottom - num
+    @data[t1..right].each do |r|
+      r[t2..bottom].each do |c|
+        printf format('% 5s', c.to_region)
+      end
+      puts ""
+    end
+    nil
+  end
 end
 
 # part 1
-# generator_string = 'wenycdww'
-generator_string = 'flqrgnkx'
-# generator_string = "wenycdww"
+# generator_string = 'flqrgnkx'
+generator_string = "wenycdww"
 defragmenter = Defragmenter.new(generator_string)
 used_count = defragmenter.used_bits
 puts "used bit count: #{used_count}"
 
 m = Maze.new(defragmenter.bit_patterns)
 c = m.run
-require 'pry'; binding.pry
 puts "regions: #{c}"
