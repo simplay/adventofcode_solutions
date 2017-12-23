@@ -29,7 +29,7 @@ class Spinlock
 
   def insert_value
     @current_value += 1
-    left = buffer[0..buffer_cursor] 
+    left = buffer[0..buffer_cursor]
     center = [@current_value]
     right = buffer[(buffer_cursor + 1)..-1]
     @buffer = left + center + right

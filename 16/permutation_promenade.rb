@@ -9,9 +9,9 @@ class Dance
     @n = n
     @cursor = 0
     @programs = %w(
-      a b c d 
-      e f g h 
-      i j k l 
+      a b c d
+      e f g h
+      i j k l
       m n o p
     )
     @programs = @programs[0..n-1]
@@ -48,7 +48,7 @@ class Dance
   end
 
   # Make the programs at position a and b swap places
-  # 
+  #
   # @param a [Integer] position a
   # @param b [Integer] position b
   def x(a, b)
@@ -58,7 +58,7 @@ class Dance
   end
 
   # Makes the programs named A and B swap places
-  # 
+  #
   # @param a [String] name program a
   # @param b [String] name program b
   def p(a, b)
@@ -68,7 +68,7 @@ class Dance
   end
 
   def sequence
-    s = programs[cursor..n-1] 
+    s = programs[cursor..n-1]
     if cursor > 0
       s += programs[0..cursor-1]
     end
@@ -81,7 +81,6 @@ sequence = File.read("data.txt").chomp.split(',')
 d = Dance.new(sequence)
 d.execute
 puts "sequence: #{d.sequence}"
-
 
 # part 2
 d = Dance.new(sequence)
