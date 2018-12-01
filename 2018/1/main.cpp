@@ -6,36 +6,32 @@
 #include <fstream>
 #include <iostream>
 #include <set>
-#include <iterator>
 #include <vector>
 
-void readFile(const char* filename, std::vector<std::string>& lines) {
-  lines.clear();
-  std::ifstream file(filename);
-  std::string s;
-  while (getline(file, s)) {
-    lines.push_back(s);
-  }
+void readFile(const char *filename, std::vector<std::string> &lines) {
+    lines.clear();
+    std::ifstream file(filename);
+    std::string s;
+    while (getline(file, s)) {
+        lines.push_back(s);
+    }
 }
 
 int main() {
-    std::ifstream infile("data.txt");
-
-    std::set<int, std::greater<int>> foundTotalFreq;
-
-    int totalFreq = 0;
-    foundTotalFreq.insert(totalFreq);
-    bool firstFreqReachedTwiceFound = false;
-    std::string line;
-
     std::vector<std::string> lines;
     readFile("data.txt", lines);
 
     int lineCount = lines.size();
     int idx = 0;
-    int finalFreq;
+    int totalFreqAfterFirstRound;
+    int totalFreq = 0;
+
+    bool firstFreqReachedTwiceFound = false;
     bool freqAlreadyEncountered;
     bool firstRoundFinished = false;
+
+    std::set<int, std::greater<int>> foundTotalFreq;
+    foundTotalFreq.insert(totalFreq);
 
     while (true) {
         std::istringstream iss(lines[idx]);
@@ -60,7 +56,7 @@ int main() {
             idx = idx % lineCount;
             if (!firstRoundFinished) {
                 firstRoundFinished = true;
-                finalFreq = totalFreq;
+                totalFreqAfterFirstRound = totalFreq;
             }
 
             if (firstFreqReachedTwiceFound)
@@ -69,7 +65,7 @@ int main() {
     }
 
     std::cout << "Part1: " << std::endl;
-    std::cout << "Resulting frequency is: " << finalFreq << std::endl;
+    std::cout << "Resulting frequency is: " << totalFreqAfterFirstRound << std::endl;
 
     return 0;
 }
