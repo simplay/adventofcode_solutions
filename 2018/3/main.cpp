@@ -177,7 +177,7 @@ void runPart2()
     for (int i = 0; i < recCount; i++)
     {
         Rec2 a = rs[i];
-        for (int j = 0; j < recCount; j++)
+        for (int j = i + 1; j < recCount; j++)
         {
             if (i == j)
                 continue;
