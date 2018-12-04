@@ -3,8 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <unordered_set>
-#include <set>
 #include <regex>
 #include <unordered_map>
 
@@ -83,10 +81,6 @@ void runPart1()
 {
     std::vector<std::string> lines;
     readFile("data.txt", lines);
-    std::unordered_set<std::string> map;
-    std::set<std::string> overlaps;
-    int overlapCount = 0;
-
     std::unordered_map<std::string, int> hits;
 
     for (std::vector<std::string>::iterator v = lines.begin(); v != lines.end(); ++v)
