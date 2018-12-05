@@ -145,7 +145,7 @@ void runPart1()
     int maxMinCount = -1;
     int index;
 
-    for (int i = 0; i < foo.size(); i++)
+    for (unsigned i = 0; i < foo.size(); i++)
     {
         if (mcount[i] > maxMinCount)
         {
