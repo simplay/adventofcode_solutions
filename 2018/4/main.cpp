@@ -12,6 +12,7 @@ struct Record
 {
     string timestamp;
     string message;
+    int minute;
     long key;
 };
 
@@ -54,7 +55,8 @@ vector<Record> readFile(const char *filename)
         timestamp.erase(0, pos + 1);
 
         // used for sorter
-        cout << year << " " << month << " " << day << " " << hour << " " << timestamp << endl;
+        // cout << year << " " << month << " " << day << " " << hour << " " << timestamp << endl;
+        r.minute = stoi(timestamp);
         r.key = std::stol(year + month + day + hour + timestamp);
 
         records.push_back(r);
@@ -67,13 +69,94 @@ vector<Record> readFile(const char *filename)
 
 void runPart1()
 {
+    unordered_map<int, vector<int>> schedule;
 
     vector<Record> records = readFile("data.txt");
-    Record r = records.at(1);
+    int fallAsleepMin;
+    int wokeUpMin;
+
     for (std::vector<Record>::iterator v = records.begin(); v != records.end(); ++v)
     {
-        cout << v->timestamp << " " << v->message << endl;
+        vector<int> minutes_sleeping;
+        int id, pos1, pos2;
+        //cout << "message: " << v->message << " " << v->key << endl;
+        switch (v->message[0])
+        {
+        case 'G':
+            pos1 = (v->message).find("#");
+            pos2 = (v->message).find(" ");
+            id = stoi(v->message.substr(pos1 + 1, pos2 - 2));
+
+            // todo: dont assign a boolean
+            if (schedule.find(id) == schedule.end())
+            {
+                schedule[id] = minutes_sleeping;
+            }
+
+            //cout << "id " << id << endl;
+            break;
+        case 'f':
+            fallAsleepMin = v->minute;
+            break;
+        case 'w':
+
+            wokeUpMin = v->minute;
+            //cout << id << " push min " << fallAsleepMin << " -> " << wokeUpMin - 1 << endl;
+            for (int k = fallAsleepMin; k < wokeUpMin; k++)
+            {
+                //cout << "id push: " << id << " k = " << k << endl;
+                schedule[id].push_back(k);
+                //cout << "count for id = " << id << ": " << schedule[id].size() << endl;
+            }
+            break;
+        }
     }
+
+    //cout << "count 10:" << schedule[10].size() << endl;
+    int maxCount = -1;
+    int maxId;
+    unordered_map<int, vector<int>>::iterator itr;
+    for (itr = schedule.begin(); itr != schedule.end(); itr++)
+    {
+        int c = itr->second.size();
+        //cout << "id: " << itr->first << " count: " << c << endl;
+        if (c > maxCount)
+        {
+            maxCount = c;
+            maxId = itr->first;
+        }
+    }
+
+    // Find largest overlap in schedule
+    vector<int> foo = schedule[maxId];
+    int mcount[60];
+    for (int i = 0; i < 60; i++)
+    {
+        mcount[i] = 0;
+    }
+
+    for (int i = 0; i < foo.size(); i++)
+    {
+        int idx = foo.at(i);
+        mcount[idx]++;
+    }
+
+
+    int maxMinCount = -1;
+    int index;
+
+    for (int i = 0; i < foo.size(); i++)
+    {
+        if (mcount[i] > maxMinCount)
+        {
+            maxMinCount = mcount[i];
+            index = i;
+        }
+    }
+
+    cout << "max min count: " << index << endl;
+    cout << "max id: " << maxId << endl;
+    cout << "dot: " << index * maxId << endl;
 }
 
 void runPart2()
