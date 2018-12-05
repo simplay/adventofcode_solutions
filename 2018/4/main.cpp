@@ -128,35 +128,36 @@ void runPart1()
     }
 
     // Find largest overlap in schedule
-    vector<int> foo = schedule[maxId];
-    int mcount[60];
+    vector<int> scheduleMostSleepyGuard = schedule[maxId];
+    int sleepCountPerMinute[60];
     for (int i = 0; i < 60; i++)
     {
-        mcount[i] = 0;
+        sleepCountPerMinute[i] = 0;
     }
 
-    for (int i = 0; i < foo.size(); i++)
+    for (int i = 0; i < scheduleMostSleepyGuard.size(); i++)
     {
-        int idx = foo.at(i);
-        mcount[idx]++;
+        int idx = scheduleMostSleepyGuard.at(i);
+        sleepCountPerMinute[idx]++;
     }
 
 
-    int maxMinCount = -1;
-    int index;
+    int maxSleepCount = -1;
+    int mostFallenAsleepMinute;
 
-    for (unsigned i = 0; i < foo.size(); i++)
+    for (unsigned i = 0; i < 60; i++)
     {
-        if (mcount[i] > maxMinCount)
+        // cout << "min = " << i << " hits: " << sleepCountPerMinute[i] << endl;
+        if (sleepCountPerMinute[i] > maxSleepCount)
         {
-            maxMinCount = mcount[i];
-            index = i;
+            maxSleepCount = sleepCountPerMinute[i];
+            mostFallenAsleepMinute = i;
         }
     }
 
-    cout << "max min count: " << index << endl;
-    cout << "max id: " << maxId << endl;
-    cout << "dot: " << index * maxId << endl;
+    cout << "Fallen asleep the most in minute: " << mostFallenAsleepMinute << endl;
+    cout << "Id if most sleeping guard: " << maxId << endl;
+    cout << "checksum: " << mostFallenAsleepMinute * maxId << endl;
 }
 
 void runPart2()
