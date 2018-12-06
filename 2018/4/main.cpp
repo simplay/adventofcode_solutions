@@ -85,7 +85,7 @@ unordered_map<int, vector<int>> guardSchedules()
         case 'G':
             pos1 = (v->message).find("#");
             pos2 = (v->message).find(" ");
-            id = stoi(v->message.substr(pos1 + 1, pos2 - 2));
+            id = stoi(v->message.substr(pos1 + 1, pos2 - 1));
 
             // todo: dont assign a boolean
             if (schedule.find(id) == schedule.end())
@@ -117,7 +117,7 @@ unordered_map<int, vector<int>> guardSchedules()
 void runPart1()
 {
     unordered_map<int, vector<int>> schedules = guardSchedules();
-    
+
     //cout << "count 10:" << schedule[10].size() << endl;
     int maxCount = -1;
     int maxId;
@@ -161,12 +161,55 @@ void runPart1()
     }
 
     cout << "Fallen asleep the most in minute: " << mostFallenAsleepMinute << endl;
-    cout << "Id if most sleeping guard: " << maxId << endl;
+    cout << "Id of most sleeping guard: " << maxId << endl;
     cout << "checksum: " << mostFallenAsleepMinute * maxId << endl;
 }
 
 void runPart2()
 {
+    unordered_map<int, vector<int>> schedules = guardSchedules();
+
+    int maxId;
+    int globalMaxMin = -1;
+    int globalMaxCount = -1;
+    unordered_map<int, vector<int>>::iterator schedule;
+    for (schedule = schedules.begin(); schedule != schedules.end(); schedule++)
+    {
+        
+        int sleepCountPerMinute[60];
+        for (int i = 0; i < 60; i++)
+        {
+            sleepCountPerMinute[i] = 0;
+        }
+
+        vector<int> minutes = schedule->second;
+        for(std::vector<int>::size_type i = 0; i != minutes.size(); i++) {
+            sleepCountPerMinute[minutes[i]]++;
+        }
+
+        int localMaxMin = -1;
+        int localMaxCount = -1;
+        for (int i = 0; i < 60; i++)
+        {
+            if (sleepCountPerMinute[i] > localMaxCount) {
+                localMaxCount = sleepCountPerMinute[i];
+                localMaxMin = i;
+            }
+        }
+
+        // cout << "ID: " << schedule->first << " max minute: " << localMaxMin << " count: " << localMaxCount << endl;
+
+        if (localMaxCount > globalMaxCount)
+        {
+            globalMaxCount = localMaxCount;
+            globalMaxMin = localMaxMin;
+            maxId = schedule->first;
+        }
+    }
+
+    cout << "Most frequently asleep minute: " << globalMaxMin << " hit " << globalMaxCount << " times" << endl;
+    cout << "Id of most sleeping guard: " << maxId << endl;
+    cout << "checksum: " << globalMaxMin * maxId << endl;
 }
 
 int main(int argc, char *argv[])
