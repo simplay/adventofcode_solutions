@@ -6,6 +6,7 @@
 #include <regex>
 #include <unordered_map>
 #include <cstdio>
+#include <stack>
 
 using namespace std;
 
@@ -34,53 +35,66 @@ bool reacting(char a, char b)
   return downcased(a) == downcased(b) && a != b;
 }
 
-string polymerAfterReaction(string str)
+void showstack(stack <char> s)
+{
+  while (!s.empty())
+  {
+    cout << '\t' << s.top();
+    s.pop();
+  }
+  cout << '\n';
+}
+
+stack<char> polymerAfterReaction(string str, char ch)
 {
   // string str = "DcAbBaC";
   // cout << "initial len: " << str.size() << endl;
+  stack<char> stack;
+  stack.push(str[0]);
 
-  string finalString;
+  string finalString = "";
   string tmp = "";
+  unsigned idx = 1;
+  unsigned n = str.size();
+  // cout << str << endl;
   while (true)
   {
-    tmp = "";
+    char a = stack.empty() ? '_' : stack.top();
+    char b = str[idx];
 
-    unsigned idx = 0;
-    while (idx < str.size())
+    // if (ch == 'o') cout << "a = " << a << " b = " << b << endl;
+    // if (ch == 'o') cout << "stack.size() = " << stack.size() << endl;
+    // if (ch == 'o') cout << "stack.empty() = " << stack.empty() << endl;
+
+    if (reacting(a, b))
     {
-      // for (int idx = 0; idx < str.size() - 1; idx++) {
-      char a = str[idx];
-      char b = str[idx + 1];
-
-      if (reacting(a, b))
-      {
-        idx += 2;
-      }
-      else
-      {
-        tmp += a;
-        idx++;
-      }
-
-      // cout << "orig a: " << a << " downcased " << downcased(a) << endl;
-      // cout << "orig b: " << b << " downcased " << downcased(b) << endl;
-      // cout << "reacting: a, b: " << reacting(a, b) << endl;
-      // cout << "reacting: b, a: " << reacting(b, a) << endl;
-      // cout << "reacting: a, a: " << reacting(a, a) << endl;
-      // cout << "reacting: b, b: " << reacting(b, b) << endl;
+      // if (ch == 'o') cout << "stack.top() = " << stack.top() << endl;
+      if (!stack.empty()) stack.pop();
+      // if (ch == 'o') cout << "done" << endl;
     }
-    // cout << "Iter: " << tmp << endl;
-
-    if (!str.compare(tmp))
+    else
     {
-      // cout << "str = " << str << " tmp = " << tmp << endl;
-      finalString = tmp;
+      // if (ch == 'o') cout << "pushing b = " << b << endl;
+      stack.push(b);
+    }
+    idx++;
+
+    // cout << "orig a: " << a << " downcased " << downcased(a) << endl;
+    // cout << "orig b: " << b << " downcased " << downcased(b) << endl;
+    // cout << "reacting: a, b: " << reacting(a, b) << endl;
+    // cout << "reacting: b, a: " << reacting(b, a) << endl;
+    // cout << "reacting: a, a: " << reacting(a, a) << endl;
+    // cout << "reacting: b, b: " << reacting(b, b) << endl;
+    if (idx == n) {
       break;
     }
-    str = tmp;
   }
+  // cout << "Iter: " << tmp << endl;
 
-  return finalString;
+
+  // showstack(stack);
+  // cout << stack.size() << endl;
+  return stack;
 }
 
 void runPart1()
@@ -88,8 +102,9 @@ void runPart1()
   std::vector<std::string> lines;
   readFile("data.txt", lines);
   string str = lines.at(0);
-  string finalString = polymerAfterReaction(str);
-  cout << "final len: " << finalString.size() << endl;
+  // str = "acBbCA";
+  stack<char> finalParts = polymerAfterReaction(str, 'c');
+  cout << "final len: " << finalParts.size() << endl;
 }
 
 void runPart2()
@@ -97,6 +112,7 @@ void runPart2()
   std::vector<std::string> lines;
   readFile("data.txt", lines);
   string polymer = lines.at(0);
+  stack<char> finalString;
 
   char chars[26] = {
       'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
@@ -116,12 +132,14 @@ void runPart2()
         subPoly += polymer[idx];
       }
     }
-    string finalString = polymerAfterReaction(subPoly);
+    // cout << "iter k = " << k << " letter " << c << endl;
+    finalString = polymerAfterReaction(subPoly, c);
     // cout << "length: " << finalString.size() << endl;
     if (finalString.size() < minLen)
     {
       minLen = finalString.size();
     }
+    // cout << "AFTER iter k = " << k << " letter " << c << endl;
   }
   cout << "min length: " << minLen << endl;
 }
