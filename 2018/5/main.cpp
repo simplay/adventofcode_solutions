@@ -123,7 +123,7 @@ void runPart2()
       minLen = finalString.size();
     }
   }
-  // cout << "min length: " << minLen << endl;
+  cout << "min length: " << minLen << endl;
 }
 
 int main(int argc, char *argv[])
