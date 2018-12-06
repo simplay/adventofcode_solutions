@@ -67,7 +67,7 @@ vector<Record> readFile(const char *filename)
     return records;
 }
 
-void runPart1()
+unordered_map<int, vector<int>> guardSchedules()
 {
     unordered_map<int, vector<int>> schedule;
 
@@ -111,12 +111,18 @@ void runPart1()
             break;
         }
     }
+    return schedule;
+}
 
+void runPart1()
+{
+    unordered_map<int, vector<int>> schedules = guardSchedules();
+    
     //cout << "count 10:" << schedule[10].size() << endl;
     int maxCount = -1;
     int maxId;
     unordered_map<int, vector<int>>::iterator itr;
-    for (itr = schedule.begin(); itr != schedule.end(); itr++)
+    for (itr = schedules.begin(); itr != schedules.end(); itr++)
     {
         int c = itr->second.size();
         //cout << "id: " << itr->first << " count: " << c << endl;
@@ -128,7 +134,7 @@ void runPart1()
     }
 
     // Find largest overlap in schedule
-    vector<int> scheduleMostSleepyGuard = schedule[maxId];
+    vector<int> scheduleMostSleepyGuard = schedules[maxId];
     int sleepCountPerMinute[60];
     for (int i = 0; i < 60; i++)
     {
@@ -140,7 +146,6 @@ void runPart1()
         int idx = scheduleMostSleepyGuard.at(i);
         sleepCountPerMinute[idx]++;
     }
-
 
     int maxSleepCount = -1;
     int mostFallenAsleepMinute;
