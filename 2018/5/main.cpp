@@ -9,13 +9,14 @@
 
 using namespace std;
 
-char downcased(char in) {
-  if(in <= 'Z' && in >= 'A') {
+char downcased(char in)
+{
+  if (in <= 'Z' && in >= 'A')
+  {
     return in - ('Z' - 'z');
   }
   return in;
 }
-
 
 void readFile(const char *filename, std::vector<std::string> &lines)
 {
@@ -28,28 +29,35 @@ void readFile(const char *filename, std::vector<std::string> &lines)
   }
 }
 
-bool reacting(char a, char b) {
+bool reacting(char a, char b)
+{
   return downcased(a) == downcased(b) && a != b;
 }
 
-string polymerAfterReaction(string str) {
+string polymerAfterReaction(string str)
+{
   // string str = "DcAbBaC";
-  cout << "initial len: " << str.size() << endl;
+  // cout << "initial len: " << str.size() << endl;
 
   string finalString;
   string tmp = "";
-  while(true) {
+  while (true)
+  {
     tmp = "";
 
     unsigned idx = 0;
-    while(idx < str.size())  {
+    while (idx < str.size())
+    {
       // for (int idx = 0; idx < str.size() - 1; idx++) {
       char a = str[idx];
       char b = str[idx + 1];
 
-      if (reacting(a, b)) {
+      if (reacting(a, b))
+      {
         idx += 2;
-      } else {
+      }
+      else
+      {
         tmp += a;
         idx++;
       }
@@ -60,22 +68,23 @@ string polymerAfterReaction(string str) {
       // cout << "reacting: b, a: " << reacting(b, a) << endl;
       // cout << "reacting: a, a: " << reacting(a, a) << endl;
       // cout << "reacting: b, b: " << reacting(b, b) << endl;
-
     }
     // cout << "Iter: " << tmp << endl;
 
-    if (!str.compare(tmp)) {
+    if (!str.compare(tmp))
+    {
       // cout << "str = " << str << " tmp = " << tmp << endl;
       finalString = tmp;
       break;
     }
     str = tmp;
-    }
+  }
 
-    return finalString;
+  return finalString;
 }
 
-void runPart1() {
+void runPart1()
+{
   std::vector<std::string> lines;
   readFile("data.txt", lines);
   string str = lines.at(0);
@@ -83,34 +92,38 @@ void runPart1() {
   cout << "final len: " << finalString.size() << endl;
 }
 
-void runPart2() {
+void runPart2()
+{
   std::vector<std::string> lines;
   readFile("data.txt", lines);
   string polymer = lines.at(0);
 
   char chars[26] = {
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-    'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-    'u', 'v', 'w', 'x', 'y', 'z'
-  };
+      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+      'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+      'u', 'v', 'w', 'x', 'y', 'z'};
 
   unsigned minLen = polymer.size() + 1;
-  for (int k = 0; k < 26; k++) {
+  for (int k = 0; k < 26; k++)
+  {
     string subPoly = "";
     char c = chars[k];
 
-    for(int idx = 0; idx < polymer.size(); idx++) {
-      if (downcased(polymer[idx]) != c) {
+    for (int idx = 0; idx < polymer.size(); idx++)
+    {
+      if (downcased(polymer[idx]) != c)
+      {
         subPoly += polymer[idx];
       }
     }
     string finalString = polymerAfterReaction(subPoly);
-    cout << "length: " << finalString.size() << endl;
-    if (finalString.size() < minLen) {
+    // cout << "length: " << finalString.size() << endl;
+    if (finalString.size() < minLen)
+    {
       minLen = finalString.size();
     }
   }
-  cout << "min length: " << minLen << endl;
+  // cout << "min length: " << minLen << endl;
 }
 
 int main(int argc, char *argv[])
@@ -128,4 +141,3 @@ int main(int argc, char *argv[])
   }
   return 0;
 }
-
