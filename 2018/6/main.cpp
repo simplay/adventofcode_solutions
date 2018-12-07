@@ -156,6 +156,32 @@ void runPart1()
 
 void runPart2()
 {
+  GridData g = readFile("data.txt");
+  vector<Point> points = g.points;
+
+  int pointCount = points.size();
+  int regionSize = 0;
+
+  // if best_dist along boundary, then fail
+  for (unsigned xx = g.xMin; xx <= g.xMax; xx++)
+  {
+    for (unsigned yy = g.yMin; yy <= g.yMax; yy++)
+    {
+
+      int totalDist = 0;
+      for (unsigned k = 0; k < pointCount; k++)
+      {
+        Point p = points.at(k);
+        int dist = dist1(p, xx, yy);
+        totalDist += dist;
+      }
+
+      if (totalDist < 10000) {
+        regionSize++;
+      }
+    }
+  }
+  cout << "region size: " << regionSize << endl;
 }
 
 int main(int argc, char *argv[])
