@@ -94,19 +94,20 @@ void runPart1()
   int ownerCount[pointCount];
   bool isInfinite[pointCount];
 
-  for (unsigned k = 0; k < pointCount; k++) {
+  for (unsigned k = 0; k < pointCount; k++)
+  {
     ownerCount[k] = 0;
     isInfinite[k] = false;
   }
-  
+
   // if best_dist along boundary, then fail
   for (unsigned xx = g.xMin; xx <= g.xMax; xx++)
   {
-    bool onBoundaryX = (xx == g.xMin) || (xx == g.xMax );
+    bool onBoundaryX = (xx == g.xMin) || (xx == g.xMax);
     // cout << "xx = " << xx << endl;
     for (unsigned yy = g.yMin; yy <= g.yMax; yy++)
     {
-      bool onBoundaryY = (yy == g.yMin) || (yy == g.yMax );
+      bool onBoundaryY = (yy == g.yMin) || (yy == g.yMax);
       int bestDist = 10000;
       unsigned bestIdx = -1;
 
@@ -120,14 +121,17 @@ void runPart1()
           bestIdx = k;
           bestDist = dist;
 
-        // Locations shown as . are equally far from two or more coordinates,
-        // and so they don't count as being closest to any.n
-        } else if (dist == bestDist) {
+          // Locations shown as . are equally far from two or more coordinates,
+          // and so they don't count as being closest to any.n
+        }
+        else if (dist == bestDist)
+        {
           bestIdx = -1;
         }
       }
 
-      if (bestIdx == -1) continue;
+      if (bestIdx == -1)
+        continue;
 
       if (onBoundaryX || onBoundaryY)
       {
@@ -141,10 +145,11 @@ void runPart1()
   }
 
   int maxCount = -1;
-  for (unsigned k = 0; k < pointCount; k++) {
+  for (unsigned k = 0; k < pointCount; k++)
+  {
     if (!isInfinite[k])
     {
-      if (ownerCount[k] > maxCount) 
+      if (ownerCount[k] > maxCount)
       {
         maxCount = ownerCount[k];
       }
@@ -176,7 +181,8 @@ void runPart2()
         totalDist += dist;
       }
 
-      if (totalDist < 10000) {
+      if (totalDist < 10000)
+      {
         regionSize++;
       }
     }
