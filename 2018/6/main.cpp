@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <cstdio>
 #include <stack>
+#include <cmath>
 
 using namespace std;
 
@@ -16,12 +17,15 @@ struct Point
   int y;
 };
 
-
 struct GridData
 {
   vector<Point> points;
   int xLen;
   int yLen;
+  int xMin;
+  int yMin;
+  int xMax;
+  int yMax;
 };
 
 GridData readFile(const char *filename)
@@ -44,19 +48,23 @@ GridData readFile(const char *filename)
     s.erase(0, pos + 2);
     p.y = stoi(s);
 
-    if (minX > p.x) {
+    if (minX > p.x)
+    {
       minX = p.x;
     }
 
-    if (minY > p.y) {
+    if (minY > p.y)
+    {
       minY = p.y;
     }
 
-    if (maxX < p.x) {
+    if (maxX < p.x)
+    {
       maxX = p.x;
     }
 
-    if (maxY < p.y) {
+    if (maxY < p.y)
+    {
       maxY = p.y;
     }
 
@@ -64,35 +72,124 @@ GridData readFile(const char *filename)
   }
 
   // cout << "minX = " << minX << " minY = " << minY << endl;
-  int xLen = maxX - minX;
-  int yLen = maxY - minY;
+  int xLen = maxX - minX + 1;
+  int yLen = maxY - minY + 1;
 
-  for (unsigned k = 0; k < points.size(); k++) {
-    points.at(k).x -= minX;
-    points.at(k).y -= minY;
-  }
+  // for (unsigned k = 0; k < points.size(); k++)
+  // {
+  //   points.at(k).x -= minX;
+  //   points.at(k).y -= minY;
+  // }
 
   GridData g = GridData();
 
   g.points = points;
   g.xLen = xLen;
   g.yLen = yLen;
-
+  g.xMax = maxX;
+  g.xMin = minX;
+  g.yMax = maxY;
+  g.yMin = minY;
 
   return g;
 }
 
-void runPart1() {
+int dist1(Point a, int x, int y)
+{
+  return abs(a.x - x) + abs(a.y - y);
+}
+
+void runPart1()
+{
   GridData g = readFile("data.txt");
   vector<Point> points = g.points;
 
-  for (unsigned k = 0; k < points.size(); k++) {
-    Point p = points.at(k);
-    // cout << "(" << p.x << ", " << p.y << ")" << endl;
+
+  int pointCount = points.size();
+  int ownerCount[pointCount];
+  bool isInfinite[pointCount];
+
+  for (unsigned k = 0; k < pointCount; k++) {
+    ownerCount[k] = 0;
+    isInfinite[k] = false;
   }
+  
+  cout << "x len = " << g.xLen << endl;
+  cout << "y len = " << g.yLen << endl;
+  
+  // if best_dist along boundary, then fail
+
+  for (unsigned xx = g.xMin; xx <= g.xMax; xx++)
+  {
+    bool onBoundaryX = (xx == g.xMin) || (xx == g.xMax );
+    // cout << "xx = " << xx << endl;
+    for (unsigned yy = g.yMin; yy <= g.yMax; yy++)
+    {
+      // cout << "yy = " << yy << endl;
+      bool onBoundaryY = (yy == g.yMin) || (yy == g.yMax );
+      // cout << "yy = " << yy << " on yB = " << onBoundaryY << endl;
+      // cout << "xx = " << xx << " on xB = " << onBoundaryX << endl << endl;
+
+      int bestDist = 10000;
+      // vector<int> ownerDistances;
+      unsigned bestIdx = -1;
+
+      for (unsigned k = 0; k < pointCount; k++)
+      {
+        Point p = points.at(k);
+        int dist = dist1(p, xx, yy);
+
+        // cout << "pid = " << k << " dist = " << dist << endl;
+        //ownerDistances.push_back(dist);
+        //if (dist == 0) continue;
+
+        if (dist < bestDist)
+        {
+          bestIdx = k;
+          bestDist = dist;
+        } else if (dist == bestDist) {
+          bestIdx = -1;
+        }
+
+       // for (unsigned k = 0; k < pointCount; k++)
+       //{
+          //if (ownerDistances[bestIdx] == bestDist) {
+
+          //}
+      //  }
+      }
+
+      // for (unsigned k = 0; k < pointCount; k++) {
+
+      //cout << "best dist = " << bestDist << " inf = " << (onBoundaryX || onBoundaryY) << endl;
+      if (bestIdx == -1) continue;
+      if (onBoundaryX || onBoundaryY)
+      {
+        isInfinite[bestIdx] = true;
+      }
+      else
+      {
+        ownerCount[bestIdx]++;
+      }
+    }
+  }
+
+  int maxCount = -1;
+  for (unsigned k = 0; k < pointCount; k++) {
+    if (!isInfinite[k])
+    {
+      if (ownerCount[k] > maxCount) 
+      {
+        maxCount = ownerCount[k];
+      }
+    }
+  }
+
+  cout << "max count: " << maxCount << endl;
 }
 
-void runPart2() {
+void runPart2()
+{
 }
 
 int main(int argc, char *argv[])
