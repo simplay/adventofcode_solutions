@@ -51,6 +51,7 @@ loop do
   ymin, ymax = psy.minmax
 
   area = (xmax - xmin) * (ymax - ymin)
+  puts area
   if (area < min_area)
     min_area = area
   else
