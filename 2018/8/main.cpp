@@ -126,12 +126,12 @@ int main(int argc, char *argv[])
   string task = argv[1];
   if (task.compare("1") == 0)
   {
-    std::cout << "Running Part 1" << std::endl;
+    cout << "Running Part 1" << endl;
     runPart1();
   }
   else
   {
-    std::cout << "Running Part 2" << std::endl;
+    cout << "Running Part 2" << endl;
     runPart2();
   }
   return 0;
