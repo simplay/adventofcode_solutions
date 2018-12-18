@@ -14,7 +14,7 @@ vector<int> readFile(const char *filename) {
 
   vector<int> ns;
   int n;
-  while(is >> n)
+  while (is >> n)
   {
     ns.push_back(n);
   }
@@ -37,13 +37,13 @@ Node readTree(vector<int>* ns, int* i)
   int meta = readValue(ns, i);
 
   vector<Node> children;
-  for(int k = 0; k < nc; k++)
+  for (int k = 0; k < nc; k++)
   {
     children.push_back(readTree(ns, i));
   }
 
   vector<int> metadata;
-  for(int k = 0; k < meta ; k++)
+  for (int k = 0; k < meta ; k++)
   {
     metadata.push_back(readValue(ns, i));
   }
@@ -73,16 +73,66 @@ int sumMetadata(Node* node)
   return sum;
 }
 
+int value(Node* node)
+{
+  auto nodeMetadata = node->metadata;
+  auto nodeChildren = node->children;
+  // If a node has no child nodes, its value is the sum of its metadata entries
+  if (nodeChildren.size() == 0)
+  {
+    int sum = 0;
+    for (unsigned k = 0; k < nodeMetadata.size(); k++)
+    {
+      sum += nodeMetadata.at(k);
+    }
+    return sum;
+  } else {
+    int sum = 0;
+    for (unsigned k = 0; k < nodeMetadata.size(); k++)
+    {
+      unsigned meta = nodeMetadata.at(k);
+
+      // If a referenced child node does not exist, that reference is skipped.
+      // A metadata entry of 0 does not refer to any child node
+      if (meta >= 1 && meta <= node->children.size())
+      {
+        // A metadata entry of 1 refers to the first child node, 2 to the
+        // second, 3 to the third, and so on
+        sum += value(&nodeChildren.at(meta - 1));
+      }
+    }
+    return sum;
+  }
+}
+
 void runPart1()
 {
   vector<int> ns = readFile("data.txt");
   int i = 0;
   Node root = readTree(&ns, &i);
-  cout << "metadata sum: " << sumMetadata(&root) << endl;
+  cout << "sum of all metadata entries: " << sumMetadata(&root) << endl;
 }
 
-int main()
+void runPart2()
 {
-  runPart1();
+  vector<int> ns = readFile("data.txt");
+  int i = 0;
+  Node root = readTree(&ns, &i);
+  cout << "value of root node: " << value(&root) << endl;
+}
+
+int main(int argc, char *argv[])
+{
+  string task = argv[1];
+  if (task.compare("1") == 0)
+  {
+    std::cout << "Running Part 1" << std::endl;
+    runPart1();
+  }
+  else
+  {
+    std::cout << "Running Part 2" << std::endl;
+    runPart2();
+  }
   return 0;
 }
